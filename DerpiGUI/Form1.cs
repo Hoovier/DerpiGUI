@@ -81,7 +81,7 @@ namespace DerpiGUI
             List<DerpiObject.Search> searches = new List<DerpiObject.Search>();
             searches.AddRange(results.search.ToList());
             Random rand = new Random();
-            DerpiObject.Search chosenImage = searches.ElementAt(rand.Next(searches.Count));
+            
             
             label1.Text = $"Total Results: {results.total.ToString()}";
             if (results.total == 0)
@@ -90,6 +90,7 @@ namespace DerpiGUI
             }
             else
             {
+                DerpiObject.Search chosenImage = searches.ElementAt(rand.Next(searches.Count));
                 var pony = chosenImage.tags;
                 Uri clocky = new Uri($"https:{chosenImage.image}");
                 string extensions = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.original_format}";
