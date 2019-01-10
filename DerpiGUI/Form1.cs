@@ -91,12 +91,12 @@ namespace DerpiGUI
             else
             {
                 DerpiObject.Search chosenImage = searches.ElementAt(rand.Next(searches.Count));
-                var pony = chosenImage.tags;
-                Uri clocky = new Uri($"https:{chosenImage.image}");
-                string extensions = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.original_format}";
+                var displayImage = chosenImage.tags;
+                //Uri clocky = new Uri($"https:{chosenImage.image}");
+                string cleanLink = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.original_format}";
                 pictureBox1.Load($"https:{chosenImage.image}");
-                richTextBox1.Text = extensions;
-                output.Text = pony;
+                richTextBox1.Text = cleanLink;
+                output.Text = displayImage;
             }
         }
         //this function prevents users from submitting an empty query
