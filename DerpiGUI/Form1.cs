@@ -296,7 +296,7 @@ namespace DerpiGUI
                     output.Text = "Please input a name for your files, with an asterisk to be replaced by the file number, Ex: 'MyFavorites#*'  ";
                     break;
                 case "KeyBox":
-                    output.Text = "Optional slot for your derpibooru API key. This allows you to access your own favorites or watched! You can find this at";
+                    output.Text = "Optional slot for your derpibooru API key. This allows you to access your own favorites or watched!";
                     break;
             }
         }
