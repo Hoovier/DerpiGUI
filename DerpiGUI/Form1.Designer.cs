@@ -44,6 +44,9 @@
             this.label4 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.KeyBox = new System.Windows.Forms.TextBox();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -51,6 +54,7 @@
             // output
             // 
             this.output.BackColor = System.Drawing.SystemColors.Window;
+            this.output.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.25F);
             this.output.Location = new System.Drawing.Point(35, 301);
             this.output.Multiline = true;
             this.output.Name = "output";
@@ -153,6 +157,8 @@
             this.filename.Size = new System.Drawing.Size(204, 20);
             this.filename.TabIndex = 15;
             this.filename.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.filename.MouseLeave += new System.EventHandler(this.textBox1_MouseLeave);
+            this.filename.MouseHover += new System.EventHandler(this.label6_MouseHover);
             // 
             // label3
             // 
@@ -186,7 +192,6 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(140, 21);
             this.comboBox1.TabIndex = 18;
-            this.comboBox1.SelectedIndex = 0;
             // 
             // label5
             // 
@@ -198,12 +203,46 @@
             this.label5.TabIndex = 19;
             this.label5.Text = "Sort by";
             // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(35, 224);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(67, 13);
+            this.label6.TabIndex = 20;
+            this.label6.Text = "Optional Key";
+            // 
+            // KeyBox
+            // 
+            this.KeyBox.Location = new System.Drawing.Point(35, 240);
+            this.KeyBox.Name = "KeyBox";
+            this.KeyBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.KeyBox.Size = new System.Drawing.Size(204, 20);
+            this.KeyBox.TabIndex = 21;
+            this.KeyBox.MouseLeave += new System.EventHandler(this.textBox1_MouseLeave);
+            this.KeyBox.MouseHover += new System.EventHandler(this.label6_MouseHover);
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.25F);
+            this.linkLabel1.Location = new System.Drawing.Point(99, 224);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(46, 13);
+            this.linkLabel1.TabIndex = 22;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "API Link";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
             // DerpiGUI
             // 
             this.AcceptButton = this.Search;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(948, 497);
+            this.Controls.Add(this.linkLabel1);
+            this.Controls.Add(this.KeyBox);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.label4);
@@ -245,6 +284,9 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox KeyBox;
+        private System.Windows.Forms.LinkLabel linkLabel1;
     }
 }
 

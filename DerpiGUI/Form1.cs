@@ -92,7 +92,6 @@ namespace DerpiGUI
             {
                 DerpiObject.Search chosenImage = searches.ElementAt(rand.Next(searches.Count));
                 var displayImage = chosenImage.tags;
-                //Uri clocky = new Uri($"https:{chosenImage.image}");
                 string cleanLink = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.original_format}";
                 pictureBox1.Load($"https:{chosenImage.image}");
                 richTextBox1.Text = cleanLink;
@@ -117,23 +116,32 @@ namespace DerpiGUI
 
         public string rating(string tags, int pageNumber, string sort)
         {
+            string key;
+            if (KeyBox.Text == "")
+            {
+                key = $"";
+            }
+            else
+            {
+                key = $"&key={KeyBox.Text}";
+            }
             string rating = "https://derpibooru.org/search.json?q=pinkie+pie";
            switch(trackBar1.Value)
             {
                 case 1:
-                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+safe&filter_id=160747&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+safe&filter_id=160747{key}&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
                     
                     break;
                 case 2:
-                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+%28safe+OR+suggestive%29&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+%28safe+OR+suggestive%29{key}&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
                    
                     break;
                 case 3:
-                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+%28safe+OR+questionable+OR+suggestive%29&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+%28safe+OR+questionable+OR+suggestive%29{key}&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
                     
                     break;
                 case 4:
-                    rating = $"https://derpibooru.org/search.json?q={tags}&key=TSgfZUMEhyV7YdzBC-sD&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/search.json?q={tags}&key=TSgfZUMEhyV7YdzBC-sD&filter_id=56027{key}&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
                
                     break;
                 
@@ -205,7 +213,7 @@ namespace DerpiGUI
                     {
                         Uri link = new Uri($"https:{i.image}");
                         
-                        await DownloadFile(link, i.original_format, $"testing{u}", location);
+                        await DownloadFile(link, i.original_format, $"{filename.Text.Replace("*", u.ToString())}", location);
                         u++;
                         
                             output.Text = $"{u} out of {response.total}";
@@ -261,16 +269,47 @@ namespace DerpiGUI
                     result = "created_at";
                     break;
                 case 1:
-                    result = "wilson";
+                    result = "score";
                     break;
                 case 2:
-                    result = "relevance";
+                    result = "wilson";
                     break;
                 case 3:
+                    result = "relevance";
+                    break;
+                case 4:
                     result = "random%3A1096362";
                     break;
             }
             return result;
+        }
+        string oldText ="";
+        private void label6_MouseHover(object sender, EventArgs e)
+        {
+            oldText = output.Text;
+
+            TextBox temp = sender as TextBox;
+            string chosenTemplate = temp.Name;
+            switch (chosenTemplate)
+            {
+                case "filename":
+                    output.Text = "Please input a name for your files, with an asterisk to be replaced by the file number, Ex: 'MyFavorites#*'  ";
+                    break;
+                case "KeyBox":
+                    output.Text = "Optional slot for your derpibooru API key. This allows you to access your own favorites or watched! You can find this at";
+                    break;
+            }
+        }
+
+        private void textBox1_MouseLeave(object sender, EventArgs e)
+        {
+            output.Text = oldText;
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {   
+            this.linkLabel1.LinkVisited = true;
+            System.Diagnostics.Process.Start("https://derpibooru.org/users/edit");
         }
     }
     }
