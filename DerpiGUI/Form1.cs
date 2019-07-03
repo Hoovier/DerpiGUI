@@ -75,9 +75,10 @@ namespace DerpiGUI
 
         }
 
-        private void Search_Click(object sender, EventArgs e)
+        private async void Search_Click(object sender, EventArgs e)
         {
-            DerpiObject.Rootobject results = deserializeJSON(Derpibooru(rating(Input.Text, 1, GetSort())).Result);
+            
+            DerpiObject.Rootobject results = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Search> searches = new List<DerpiObject.Search>();
             searches.AddRange(results.search.ToList());
             Random rand = new Random();
@@ -185,7 +186,7 @@ namespace DerpiGUI
             
             string location = "no path";
             output.Text = "Beginning...";
-            DerpiObject.Rootobject response = deserializeJSON(Derpibooru(rating(Input.Text, 0, GetSort())).Result);
+            DerpiObject.Rootobject response = deserializeJSON(await Derpibooru(rating(Input.Text, 0, GetSort())));
             List<DerpiObject.Search> searches = new List<DerpiObject.Search>();
             int num_pages = response.total / 50;
 
@@ -205,7 +206,7 @@ namespace DerpiGUI
                 for (int pages = 1; pages <= (num_pages); pages++)
                 {
                     
-                    response = deserializeJSON(Derpibooru(rating(Input.Text, pages,GetSort())).Result);
+                    response = deserializeJSON(await Derpibooru(rating(Input.Text, pages,GetSort())));
                     searches.AddRange(response.search.ToList());
                     
                     
@@ -310,6 +311,11 @@ namespace DerpiGUI
         {   
             this.linkLabel1.LinkVisited = true;
             System.Diagnostics.Process.Start("https://derpibooru.org/users/edit");
+        }
+
+        private void PictureBox1_Click(object sender, EventArgs e)
+        {
+
         }
     }
     }
