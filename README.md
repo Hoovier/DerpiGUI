@@ -28,3 +28,4 @@ Thanks to the following people for beta testing and inspiration!
 * Twilite-sparkleplz
 * Stardust
 * NovaCrazy
+* SkyDog
