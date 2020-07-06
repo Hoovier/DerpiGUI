@@ -221,10 +221,18 @@ namespace DerpiGUI
                     {
                         Uri link = new Uri($"{i.view_url}");
                         string filenameFixed = filename.Text.Replace("*", u.ToString());
-                        await DownloadFile(link, i.format, filenameFixed, location);
+                        
+                        try
+                        {
+                            await DownloadFile(link, i.format, filenameFixed, location);
+                            pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
+                        }
+                        catch
+                        {
+                            //do nothing
+                        }
                         u++;
-                        pictureBox1.Load(location + @"\" +  filenameFixed + "." + i.format);
-                            output.Text = $"{u} out of {response.total}";
+                        output.Text = $"{u} out of {response.total}";
                         
                     }
                     searches.Clear();
@@ -245,7 +253,17 @@ namespace DerpiGUI
                 {
                     Uri link = new Uri($"{i.view_url}");
                     output.Text = "Downloading!";
-                    await DownloadFile(link, i.format, $"{filename.Text.Replace("*", u.ToString())}", location);
+                    string filenameFixed = filename.Text.Replace("*", u.ToString());
+                    
+                    try
+                    {
+                        await DownloadFile(link, i.format, filenameFixed, location);
+                        pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
+                    }
+                    catch
+                    {
+                        //do nothing
+                    }
                     u++;
                     if (u <= response.total)
                     {
