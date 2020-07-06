@@ -30,32 +30,29 @@ namespace DerpiGUI
  
         }
 
-        private static async Task<string> Derpibooru(string link)
+        private static async Task<string> Derpibooru(string url)
         {
             using (HttpClient client = new HttpClient())
             {
-                try
-                {
-                    HttpResponseMessage response = await client.GetAsync(link).ConfigureAwait(continueOnCapturedContext: false) ;
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    return responseBody;
-                }
+                string type = "application/json";
+                client.BaseAddress = new Uri(url);
 
-                catch (HttpRequestException e)
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(type));
+                //add user agent with my info on it, necessary not to receive errors
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("DerpiGUI/Discord Hoovier#4192");
+                HttpResponseMessage response = await client.GetAsync(String.Empty);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    //lazy work around, displays 0 results when user puts in invalid search. Will later fix!
-                    HttpResponseMessage response = await client.GetAsync("https://derpibooru.org/search.json?q=pinkie+pie+AND+NOT+pinkie+pie").ConfigureAwait(continueOnCapturedContext: false);
-                    response.EnsureSuccessStatusCode();
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    return responseBody;
+                    return await response.Content.ReadAsStringAsync();
                 }
+                return string.Empty;
             }
-
         }
 
-       
-        private static async Task DownloadFile(Uri fileUri, string extension, string name, string address)
+
+            private static async Task DownloadFile(Uri fileUri, string extension, string name, string address)
         {
             using (var client = new HttpClient())
             using (var response = await client.GetAsync(fileUri))
@@ -72,15 +69,17 @@ namespace DerpiGUI
 
         private void DerpiGUI_Load(object sender, EventArgs e)
         {
-
+            comboBox1.SelectedIndex = 1;
+            label2.Text = "Rating: Safe";
+            pictureBox1.Image = Properties.Resources.instructions;
         }
 
         private async void Search_Click(object sender, EventArgs e)
         {
-            
+            output.Text = "Searching...";
             DerpiObject.Rootobject results = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
-            List<DerpiObject.Search> searches = new List<DerpiObject.Search>();
-            searches.AddRange(results.search.ToList());
+            List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
+            searches.AddRange(results.images.ToList());
             Random rand = new Random();
             
             
@@ -91,10 +90,11 @@ namespace DerpiGUI
             }
             else
             {
-                DerpiObject.Search chosenImage = searches.ElementAt(rand.Next(searches.Count));
-                var displayImage = chosenImage.tags;
-                string cleanLink = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.original_format}";
-                pictureBox1.Load($"https:{chosenImage.image}");
+
+                DerpiObject.Image chosenImage = searches.ElementAt(rand.Next(searches.Count));
+                var displayImage = String.Join(",", chosenImage.tags);
+                string cleanLink = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.format.ToLower()}";
+                pictureBox1.Load($"{chosenImage.view_url}");
                 richTextBox1.Text = cleanLink;
                 output.Text = displayImage;
             }
@@ -126,23 +126,23 @@ namespace DerpiGUI
             {
                 key = $"&key={KeyBox.Text}";
             }
-            string rating = "https://derpibooru.org/search.json?q=pinkie+pie";
+            string rating = "https://derpibooru.org/api/v1/json/search/images?q=pinkie+pie";
            switch(trackBar1.Value)
             {
                 case 1:
-                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+safe&filter_id=160747{key}&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/api/v1/json/search/images?q={tags}+AND+safe&filter_id=160747{key}&sf={sort}&sd=desc&per_page=50&page={pageNumber}";
                     
                     break;
                 case 2:
-                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+%28safe+OR+suggestive%29{key}&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/api/v1/json/search/images?q={tags}+AND+%28safe+OR+suggestive%29{key}&filter_id=56027&sf={sort}&sd=desc&per_page=50&page={pageNumber}";
                    
                     break;
                 case 3:
-                    rating = $"https://derpibooru.org/search.json?q={tags}+AND+%28safe+OR+questionable+OR+suggestive%29{key}&filter_id=56027&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/api/v1/json/search/images?q={tags}+AND+%28safe+OR+questionable+OR+suggestive%29{key}&filter_id=56027&sf={sort}&sd=desc&per_page=50&page={pageNumber}";
                     
                     break;
                 case 4:
-                    rating = $"https://derpibooru.org/search.json?q={tags}&key=TSgfZUMEhyV7YdzBC-sD&filter_id=56027{key}&sf={sort}&sd=desc&perpage=50&page={pageNumber}";
+                    rating = $"https://derpibooru.org/api/v1/json/search/images?q={tags}&key=TSgfZUMEhyV7YdzBC-sD&filter_id=56027{key}&sf={sort}&sd=desc&per_page=50&page={pageNumber}";
                
                     break;
                 
@@ -186,8 +186,8 @@ namespace DerpiGUI
             
             string location = "no path";
             output.Text = "Beginning...";
-            DerpiObject.Rootobject response = deserializeJSON(await Derpibooru(rating(Input.Text, 0, GetSort())));
-            List<DerpiObject.Search> searches = new List<DerpiObject.Search>();
+            DerpiObject.Rootobject response = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
+            List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             int num_pages = response.total / 50;
 
             if(response.total % 50 > 0)
@@ -203,20 +203,27 @@ namespace DerpiGUI
             {
                 folderBrowserDialog1.ShowDialog();
                 location = folderBrowserDialog1.SelectedPath;
+
+                if(location == "")
+                {
+                    output.Text = "No download location selected! Try again!";
+                    return;
+                }
+
                 for (int pages = 1; pages <= (num_pages); pages++)
                 {
                     
                     response = deserializeJSON(await Derpibooru(rating(Input.Text, pages,GetSort())));
-                    searches.AddRange(response.search.ToList());
+                    searches.AddRange(response.images);
                     
                     
-                    foreach (DerpiObject.Search i in searches)
+                    foreach (DerpiObject.Image i in searches)
                     {
-                        Uri link = new Uri($"https:{i.image}");
-                        
-                        await DownloadFile(link, i.original_format, $"{filename.Text.Replace("*", u.ToString())}", location);
+                        Uri link = new Uri($"{i.view_url}");
+                        string filenameFixed = filename.Text.Replace("*", u.ToString());
+                        await DownloadFile(link, i.format, filenameFixed, location);
                         u++;
-                        
+                        pictureBox1.Load(location + @"\" +  filenameFixed + "." + i.format);
                             output.Text = $"{u} out of {response.total}";
                         
                     }
@@ -228,12 +235,17 @@ namespace DerpiGUI
                 folderBrowserDialog1.ShowNewFolderButton = true;
                 folderBrowserDialog1.ShowDialog();
                 location = folderBrowserDialog1.SelectedPath;
-                searches.AddRange(response.search.ToList());
-                foreach (DerpiObject.Search i in searches)
+                if (location == "")
                 {
-                    Uri link = new Uri($"https:{i.image}");
+                    output.Text = "No download location selected! Try again!";
+                    return;
+                }
+                searches.AddRange(response.images);
+                foreach (DerpiObject.Image i in searches)
+                {
+                    Uri link = new Uri($"{i.view_url}");
                     output.Text = "Downloading!";
-                    await DownloadFile(link, i.original_format, $"{filename.Text.Replace("*", u.ToString())}", location);
+                    await DownloadFile(link, i.format, $"{filename.Text.Replace("*", u.ToString())}", location);
                     u++;
                     if (u <= response.total)
                     {
@@ -313,9 +325,9 @@ namespace DerpiGUI
             System.Diagnostics.Process.Start("https://derpibooru.org/users/edit");
         }
 
-        private void PictureBox1_Click(object sender, EventArgs e)
+        private void helpButton_Click(object sender, EventArgs e)
         {
-
+            pictureBox1.Image = Properties.Resources.instructions;
         }
     }
     }
