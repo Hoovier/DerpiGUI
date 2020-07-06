@@ -55,7 +55,7 @@
             // output
             // 
             this.output.BackColor = System.Drawing.SystemColors.Window;
-            this.output.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.25F);
+            this.output.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.output.Location = new System.Drawing.Point(35, 301);
             this.output.Multiline = true;
             this.output.Name = "output";
@@ -84,10 +84,10 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox1.TabIndex = 6;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.PictureBox1_Click);
             // 
             // Input
             // 
+            this.Input.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Input.Location = new System.Drawing.Point(35, 49);
             this.Input.Multiline = true;
             this.Input.Name = "Input";

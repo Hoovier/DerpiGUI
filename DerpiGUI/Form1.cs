@@ -69,14 +69,14 @@ namespace DerpiGUI
 
         private void DerpiGUI_Load(object sender, EventArgs e)
         {
-            comboBox1.SelectedIndex = 0;
+            comboBox1.SelectedIndex = 1;
             label2.Text = "Rating: Safe";
             pictureBox1.Image = Properties.Resources.instructions;
         }
 
         private async void Search_Click(object sender, EventArgs e)
         {
-            
+            output.Text = "Searching...";
             DerpiObject.Rootobject results = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             searches.AddRange(results.images.ToList());
@@ -203,6 +203,13 @@ namespace DerpiGUI
             {
                 folderBrowserDialog1.ShowDialog();
                 location = folderBrowserDialog1.SelectedPath;
+
+                if(location == "")
+                {
+                    output.Text = "No download location selected! Try again!";
+                    return;
+                }
+
                 for (int pages = 1; pages <= (num_pages); pages++)
                 {
                     
@@ -228,6 +235,11 @@ namespace DerpiGUI
                 folderBrowserDialog1.ShowNewFolderButton = true;
                 folderBrowserDialog1.ShowDialog();
                 location = folderBrowserDialog1.SelectedPath;
+                if (location == "")
+                {
+                    output.Text = "No download location selected! Try again!";
+                    return;
+                }
                 searches.AddRange(response.images);
                 foreach (DerpiObject.Image i in searches)
                 {
@@ -311,11 +323,6 @@ namespace DerpiGUI
         {   
             this.linkLabel1.LinkVisited = true;
             System.Diagnostics.Process.Start("https://derpibooru.org/users/edit");
-        }
-
-        private void PictureBox1_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void helpButton_Click(object sender, EventArgs e)
