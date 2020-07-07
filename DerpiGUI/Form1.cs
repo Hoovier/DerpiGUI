@@ -18,53 +18,10 @@ namespace DerpiGUI
 {
     public partial class DerpiGUI : Form
     {
+        string oldText = "";
         public DerpiGUI()
         {
             InitializeComponent();
-        }
-
-        private DerpiObject.Rootobject deserializeJSON(string str)
-        {
-           
-                return JsonConvert.DeserializeObject<DerpiObject.Rootobject>(str);
- 
-        }
-
-        private static async Task<string> Derpibooru(string url)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                string type = "application/json";
-                client.BaseAddress = new Uri(url);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(type));
-                //add user agent with my info on it, necessary not to receive errors
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("DerpiGUI/Discord Hoovier#4192");
-                HttpResponseMessage response = await client.GetAsync(String.Empty);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
-                return string.Empty;
-            }
-        }
-
-
-            private static async Task DownloadFile(Uri fileUri, string extension, string name, string address)
-        {
-            using (var client = new HttpClient())
-            using (var response = await client.GetAsync(fileUri))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-
-                using (var fileStream = File.Create($@"{address}\{name}.{extension}"))
-                {
-                    stream.CopyTo(fileStream);
-                }
-            }
         }
 
         private void DerpiGUI_Load(object sender, EventArgs e)
@@ -77,7 +34,7 @@ namespace DerpiGUI
         private async void Search_Click(object sender, EventArgs e)
         {
             output.Text = "Searching...";
-            DerpiObject.Rootobject results = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
+            DerpiObject.Rootobject results = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             searches.AddRange(results.images.ToList());
             Random rand = new Random();
@@ -186,7 +143,7 @@ namespace DerpiGUI
             
             string location = "no path";
             output.Text = "Beginning...";
-            DerpiObject.Rootobject response = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
+            DerpiObject.Rootobject response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             int num_pages = response.total / 50;
 
@@ -213,7 +170,7 @@ namespace DerpiGUI
                 for (int pages = 1; pages <= (num_pages); pages++)
                 {
                     
-                    response = deserializeJSON(await Derpibooru(rating(Input.Text, pages,GetSort())));
+                    response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, pages,GetSort())));
                     searches.AddRange(response.images);
                     
                     
@@ -224,7 +181,7 @@ namespace DerpiGUI
                         
                         try
                         {
-                            await DownloadFile(link, i.format, filenameFixed, location);
+                            await Helper.DownloadFile(link, i.format, filenameFixed, location);
                             pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
                         }
                         catch
@@ -257,7 +214,7 @@ namespace DerpiGUI
                     
                     try
                     {
-                        await DownloadFile(link, i.format, filenameFixed, location);
+                        await Helper.DownloadFile(link, i.format, filenameFixed, location);
                         pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
                     }
                     catch
@@ -293,28 +250,9 @@ namespace DerpiGUI
 
         private string GetSort()
         {
-            string result = "score";
-            switch (comboBox1.SelectedIndex)
-            {
-                case 0:
-                    result = "created_at";
-                    break;
-                case 1:
-                    result = "score";
-                    break;
-                case 2:
-                    result = "wilson";
-                    break;
-                case 3:
-                    result = "relevance";
-                    break;
-                case 4:
-                    result = "random%3A1096362";
-                    break;
-            }
-            return result;
+            //send selected index and have it return string for sorting
+            return Helper.sort(comboBox1.SelectedIndex);
         }
-        string oldText ="";
         private void label6_MouseHover(object sender, EventArgs e)
         {
             oldText = output.Text;
@@ -340,7 +278,7 @@ namespace DerpiGUI
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {   
             this.linkLabel1.LinkVisited = true;
-            System.Diagnostics.Process.Start("https://derpibooru.org/users/edit");
+            System.Diagnostics.Process.Start("https://derpibooru.org/registration/edit");
         }
 
         private void helpButton_Click(object sender, EventArgs e)
