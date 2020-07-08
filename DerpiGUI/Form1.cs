@@ -140,14 +140,14 @@ namespace DerpiGUI
 
         private async void download_ClickAsync(object sender, EventArgs e)
         {
-            
+
             string location = "no path";
             output.Text = "Beginning...";
             DerpiObject.Rootobject response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             int num_pages = response.total / 50;
 
-            if(response.total % 50 > 0)
+            if (response.total % 50 > 0)
             {
                 num_pages++;
             }
@@ -156,79 +156,50 @@ namespace DerpiGUI
             {
                 output.Text = "Nothing to download!";
             }
-            else  if (response.total >= 50)
+            else
             {
                 folderBrowserDialog1.ShowDialog();
                 location = folderBrowserDialog1.SelectedPath;
 
-                if(location == "")
-                {
-                    output.Text = "No download location selected! Try again!";
-                    return;
-                }
-
-                for (int pages = 1; pages <= (num_pages); pages++)
-                {
-                    
-                    response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, pages,GetSort())));
-                    searches.AddRange(response.images);
-                    
-                    
-                    foreach (DerpiObject.Image i in searches)
-                    {
-                        Uri link = new Uri($"{i.view_url}");
-                        string filenameFixed = filename.Text.Replace("*", u.ToString());
-                        
-                        try
-                        {
-                            await Helper.DownloadFile(link, i.format, filenameFixed, location);
-                            pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
-                        }
-                        catch
-                        {
-                            //do nothing
-                        }
-                        u++;
-                        output.Text = $"{u} out of {response.total}";
-                        
-                    }
-                    searches.Clear();
-                }
-            }
-            else if (response.total > 0 && response.total <= 50)
-            {
-                folderBrowserDialog1.ShowNewFolderButton = true;
-                folderBrowserDialog1.ShowDialog();
-                location = folderBrowserDialog1.SelectedPath;
                 if (location == "")
                 {
                     output.Text = "No download location selected! Try again!";
                     return;
                 }
-                searches.AddRange(response.images);
-                foreach (DerpiObject.Image i in searches)
+                //this prepares the file for writing the data of each image, it appends to the file after every download, 
+                //so that closing the program will not lose any data.
+                string infoText = $"DerpiGUI was made by @HoovierSparkle on Twitter! Thanks for using my work!\nQuery: {Input.Text}\nTotal Images: {response.total}\n" +
+                $"Sorting:{GetSort()}\n\nFilename - ImageID - Tags\n";
+                string infoTextAddress = location + $@"\{filename.Text.Trim('*')}Info.txt";
+                File.WriteAllText(infoTextAddress, infoText);
+
+                using (StreamWriter infoWriter = File.AppendText(infoTextAddress))
                 {
-                    Uri link = new Uri($"{i.view_url}");
-                    output.Text = "Downloading!";
-                    string filenameFixed = filename.Text.Replace("*", u.ToString());
-                    
-                    try
+                    for (int pages = 1; pages <= (num_pages); pages++)
                     {
-                        await Helper.DownloadFile(link, i.format, filenameFixed, location);
-                        pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
-                    }
-                    catch
-                    {
-                        //do nothing
-                    }
-                    u++;
-                    if (u <= response.total)
-                    {
-                        output.Text = $"{u} out of {response.total}";
+                        response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, pages, GetSort())));
+                        searches = response.images;
+                        foreach (DerpiObject.Image i in searches)
+                        {
+                            Uri link = new Uri($"{i.view_url}");
+                            string filenameFixed = filename.Text.Replace("*", u.ToString());
+                            try
+                            {
+                                await Helper.DownloadFile(link, i.format, filenameFixed, location);
+                                pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
+                            }
+                            catch
+                            {//do nothing
+                            }
+                            u++;
+                            infoWriter.WriteLine(filenameFixed + " - " + i.id + " - " + String.Join(",", i.tags) + "\n");
+                            output.Text = $"{u} out of {response.total}";
+                        }
+                        searches.Clear();
                     }
                 }
+                output.Text = output.Text + " Finished!";
             }
-
         }
         //checks for correct filename
         private void textBox1_TextChanged(object sender, EventArgs e)
