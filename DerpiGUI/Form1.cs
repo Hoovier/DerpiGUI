@@ -192,7 +192,7 @@ namespace DerpiGUI
                             {//do nothing
                             }
                             u++;
-                            infoWriter.WriteLine(filenameFixed + " - " + i.id + " - " + String.Join(",", i.tags) + "\n");
+                            infoWriter.WriteLine(filenameFixed + i.format + " - " + i.id + " - " + String.Join(", ", i.tags) + "\n");
                             output.Text = $"{u} out of {response.total}";
                         }
                         searches.Clear();
