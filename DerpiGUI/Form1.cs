@@ -49,7 +49,7 @@ namespace DerpiGUI
             {
 
                 DerpiObject.Image chosenImage = searches.ElementAt(rand.Next(searches.Count));
-                var displayImage = String.Join(",", chosenImage.tags);
+                var displayImage = String.Join(", ", chosenImage.tags);
                 string cleanLink = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.format.ToLower()}";
                 pictureBox1.Load($"{chosenImage.view_url}");
                 richTextBox1.Text = cleanLink;
@@ -168,6 +168,8 @@ namespace DerpiGUI
                 }
                 //this prepares the file for writing the data of each image, it appends to the file after every download, 
                 //so that closing the program will not lose any data.
+                //check if the checkbox is checked, only write to doc if it is
+                bool writeInfoToTXT = infoCheckBox.Checked;
                 string infoText = $"DerpiGUI was made by @HoovierSparkle on Twitter! Thanks for using my work!\nQuery: {Input.Text}\nTotal Images: {response.total}\n" +
                 $"Sorting:{GetSort()}\n\nFilename - ImageID - Tags\n";
                 string infoTextAddress = location + $@"\{filename.Text.Trim('*')}Info.txt";
@@ -192,7 +194,11 @@ namespace DerpiGUI
                             {//do nothing
                             }
                             u++;
-                            infoWriter.WriteLine(filenameFixed + "." + i.format + " - " + i.id + " - " + String.Join(", ", i.tags) + "\n");
+                            //only write if the checkbox is checked
+                            if (writeInfoToTXT)
+                            {
+                                infoWriter.WriteLine(filenameFixed + "." + i.format + " - " + i.id + " - " + String.Join(", ", i.tags) + "\n");
+                            }
                             output.Text = $"{u} out of {response.total}";
                         }
                         searches.Clear();
