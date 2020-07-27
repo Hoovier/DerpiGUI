@@ -18,53 +18,10 @@ namespace DerpiGUI
 {
     public partial class DerpiGUI : Form
     {
+        string oldText = "";
         public DerpiGUI()
         {
             InitializeComponent();
-        }
-
-        private DerpiObject.Rootobject deserializeJSON(string str)
-        {
-           
-                return JsonConvert.DeserializeObject<DerpiObject.Rootobject>(str);
- 
-        }
-
-        private static async Task<string> Derpibooru(string url)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                string type = "application/json";
-                client.BaseAddress = new Uri(url);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(type));
-                //add user agent with my info on it, necessary not to receive errors
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("DerpiGUI/Discord Hoovier#4192");
-                HttpResponseMessage response = await client.GetAsync(String.Empty);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return await response.Content.ReadAsStringAsync();
-                }
-                return string.Empty;
-            }
-        }
-
-
-            private static async Task DownloadFile(Uri fileUri, string extension, string name, string address)
-        {
-            using (var client = new HttpClient())
-            using (var response = await client.GetAsync(fileUri))
-            {
-                response.EnsureSuccessStatusCode();
-                var stream = await response.Content.ReadAsStreamAsync();
-
-                using (var fileStream = File.Create($@"{address}\{name}.{extension}"))
-                {
-                    stream.CopyTo(fileStream);
-                }
-            }
         }
 
         private void DerpiGUI_Load(object sender, EventArgs e)
@@ -77,7 +34,7 @@ namespace DerpiGUI
         private async void Search_Click(object sender, EventArgs e)
         {
             output.Text = "Searching...";
-            DerpiObject.Rootobject results = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
+            DerpiObject.Rootobject results = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             searches.AddRange(results.images.ToList());
             Random rand = new Random();
@@ -92,7 +49,7 @@ namespace DerpiGUI
             {
 
                 DerpiObject.Image chosenImage = searches.ElementAt(rand.Next(searches.Count));
-                var displayImage = String.Join(",", chosenImage.tags);
+                var displayImage = String.Join(", ", chosenImage.tags);
                 string cleanLink = $"https://derpicdn.net/img/view/{chosenImage.created_at.Date.ToString("yyyy/M/d")}/{chosenImage.id}.{chosenImage.format.ToLower()}";
                 pictureBox1.Load($"{chosenImage.view_url}");
                 richTextBox1.Text = cleanLink;
@@ -183,14 +140,14 @@ namespace DerpiGUI
 
         private async void download_ClickAsync(object sender, EventArgs e)
         {
-            
+
             string location = "no path";
             output.Text = "Beginning...";
-            DerpiObject.Rootobject response = deserializeJSON(await Derpibooru(rating(Input.Text, 1, GetSort())));
+            DerpiObject.Rootobject response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, 1, GetSort())));
             List<DerpiObject.Image> searches = new List<DerpiObject.Image>();
             int num_pages = response.total / 50;
 
-            if(response.total % 50 > 0)
+            if (response.total % 50 > 0)
             {
                 num_pages++;
             }
@@ -199,79 +156,56 @@ namespace DerpiGUI
             {
                 output.Text = "Nothing to download!";
             }
-            else  if (response.total >= 50)
+            else
             {
                 folderBrowserDialog1.ShowDialog();
                 location = folderBrowserDialog1.SelectedPath;
 
-                if(location == "")
-                {
-                    output.Text = "No download location selected! Try again!";
-                    return;
-                }
-
-                for (int pages = 1; pages <= (num_pages); pages++)
-                {
-                    
-                    response = deserializeJSON(await Derpibooru(rating(Input.Text, pages,GetSort())));
-                    searches.AddRange(response.images);
-                    
-                    
-                    foreach (DerpiObject.Image i in searches)
-                    {
-                        Uri link = new Uri($"{i.view_url}");
-                        string filenameFixed = filename.Text.Replace("*", u.ToString());
-                        
-                        try
-                        {
-                            await DownloadFile(link, i.format, filenameFixed, location);
-                            pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
-                        }
-                        catch
-                        {
-                            //do nothing
-                        }
-                        u++;
-                        output.Text = $"{u} out of {response.total}";
-                        
-                    }
-                    searches.Clear();
-                }
-            }
-            else if (response.total > 0 && response.total <= 50)
-            {
-                folderBrowserDialog1.ShowNewFolderButton = true;
-                folderBrowserDialog1.ShowDialog();
-                location = folderBrowserDialog1.SelectedPath;
                 if (location == "")
                 {
                     output.Text = "No download location selected! Try again!";
                     return;
                 }
-                searches.AddRange(response.images);
-                foreach (DerpiObject.Image i in searches)
+                //this prepares the file for writing the data of each image, it appends to the file after every download, 
+                //so that closing the program will not lose any data.
+                //check if the checkbox is checked, only write to doc if it is
+                bool writeInfoToTXT = infoCheckBox.Checked;
+                string infoText = $"DerpiGUI was made by @HoovierSparkle on Twitter! Thanks for using my work!\nQuery: {Input.Text}\nTotal Images: {response.total}\n" +
+                $"Sorting:{GetSort()}\n\nFilename - ImageID - Tags\n";
+                string infoTextAddress = location + $@"\{filename.Text.Trim('*')}Info.txt";
+                File.WriteAllText(infoTextAddress, infoText);
+
+                using (StreamWriter infoWriter = File.AppendText(infoTextAddress))
                 {
-                    Uri link = new Uri($"{i.view_url}");
-                    output.Text = "Downloading!";
-                    string filenameFixed = filename.Text.Replace("*", u.ToString());
-                    
-                    try
+                    for (int pages = 1; pages <= (num_pages); pages++)
                     {
-                        await DownloadFile(link, i.format, filenameFixed, location);
-                        pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
-                    }
-                    catch
-                    {
-                        //do nothing
-                    }
-                    u++;
-                    if (u <= response.total)
-                    {
-                        output.Text = $"{u} out of {response.total}";
+                        response = Helper.deserializeJSON(await Helper.Derpibooru(rating(Input.Text, pages, GetSort())));
+                        searches = response.images;
+                        foreach (DerpiObject.Image i in searches)
+                        {
+                            Uri link = new Uri($"{i.view_url}");
+                            string filenameFixed = filename.Text.Replace("*", u.ToString());
+                            try
+                            {
+                                await Helper.DownloadFile(link, i.format, filenameFixed, location);
+                                pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
+                            }
+                            catch
+                            {//do nothing
+                            }
+                            u++;
+                            //only write if the checkbox is checked
+                            if (writeInfoToTXT)
+                            {
+                                infoWriter.WriteLine(filenameFixed + "." + i.format + " - " + i.id + " - " + String.Join(", ", i.tags) + "\n");
+                            }
+                            output.Text = $"{u} out of {response.total}";
+                        }
+                        searches.Clear();
                     }
                 }
+                output.Text = output.Text + " Finished!";
             }
-
         }
         //checks for correct filename
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -293,28 +227,9 @@ namespace DerpiGUI
 
         private string GetSort()
         {
-            string result = "score";
-            switch (comboBox1.SelectedIndex)
-            {
-                case 0:
-                    result = "created_at";
-                    break;
-                case 1:
-                    result = "score";
-                    break;
-                case 2:
-                    result = "wilson";
-                    break;
-                case 3:
-                    result = "relevance";
-                    break;
-                case 4:
-                    result = "random%3A1096362";
-                    break;
-            }
-            return result;
+            //send selected index and have it return string for sorting
+            return Helper.sort(comboBox1.SelectedIndex);
         }
-        string oldText ="";
         private void label6_MouseHover(object sender, EventArgs e)
         {
             oldText = output.Text;
@@ -340,7 +255,7 @@ namespace DerpiGUI
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {   
             this.linkLabel1.LinkVisited = true;
-            System.Diagnostics.Process.Start("https://derpibooru.org/users/edit");
+            System.Diagnostics.Process.Start("https://derpibooru.org/registration/edit");
         }
 
         private void helpButton_Click(object sender, EventArgs e)

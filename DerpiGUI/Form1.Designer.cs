@@ -48,6 +48,7 @@
             this.KeyBox = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.helpButton = new System.Windows.Forms.Button();
+            this.infoCheckBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -251,12 +252,24 @@
             this.helpButton.UseVisualStyleBackColor = true;
             this.helpButton.Click += new System.EventHandler(this.helpButton_Click);
             // 
+            // infoCheckBox
+            // 
+            this.infoCheckBox.AutoSize = true;
+            this.infoCheckBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.infoCheckBox.Location = new System.Drawing.Point(311, 464);
+            this.infoCheckBox.Name = "infoCheckBox";
+            this.infoCheckBox.Size = new System.Drawing.Size(104, 20);
+            this.infoCheckBox.TabIndex = 24;
+            this.infoCheckBox.Text = "Write info.txt?";
+            this.infoCheckBox.UseVisualStyleBackColor = true;
+            // 
             // DerpiGUI
             // 
             this.AcceptButton = this.Search;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(948, 497);
+            this.Controls.Add(this.infoCheckBox);
             this.Controls.Add(this.helpButton);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.KeyBox);
@@ -306,6 +319,7 @@
         private System.Windows.Forms.TextBox KeyBox;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Button helpButton;
+        private System.Windows.Forms.CheckBox infoCheckBox;
     }
 }
 
