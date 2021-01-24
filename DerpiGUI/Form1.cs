@@ -171,7 +171,7 @@ namespace DerpiGUI
                 //check if the checkbox is checked, only write to doc if it is
                 bool writeInfoToTXT = infoCheckBox.Checked;
                 string infoText = $"DerpiGUI was made by @HoovierSparkle on Twitter! Thanks for using my work!\nQuery: {Input.Text}\nTotal Images: {response.total}\n" +
-                $"Sorting:{GetSort()}\n\nFilename - ImageID - Tags\n";
+                $"Sorting:{GetSort()}\n\nFilename - ImageID - Artist(s) - Tags\n";
                 string infoTextAddress = location + $@"\{filename.Text.Trim('*')}Info.txt";
                 File.WriteAllText(infoTextAddress, infoText);
 
@@ -197,7 +197,15 @@ namespace DerpiGUI
                             //only write if the checkbox is checked
                             if (writeInfoToTXT)
                             {
-                                infoWriter.WriteLine(filenameFixed + "." + i.format + " - " + i.id + " - " + String.Join(", ", i.tags) + "\n");
+                                // Get a distilled list of artist tags from the full tag listing.
+                                string[] artistTags = i.tags.ToArray();
+                                artistTags = Array.FindAll(artistTags, tag => tag.Contains("artist:"));
+                                string artistString = "No Artist";
+                                if(artistTags.Length != 0)
+                                {
+                                    artistString = String.Join(", ", artistTags);
+                                }
+                                infoWriter.WriteLine(filenameFixed + "." + i.format + " - " + i.id + " - " + artistString + " - " + String.Join(", ", i.tags) + "\n");
                             }
                             output.Text = $"{u} out of {response.total}";
                         }
