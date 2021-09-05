@@ -184,11 +184,19 @@ namespace DerpiGUI
                         foreach (DerpiObject.Image i in searches)
                         {
                             Uri link = new Uri($"{i.view_url}");
-                            string filenameFixed = filename.Text.Replace("*", u.ToString());
+                            string filenameFixed;
+                            if (FilenameCheckbox.Checked)
+                            {
+                                filenameFixed = i.view_url.Replace(i.representations.full.Replace("." +i.format, ""), "").Replace("." + i.format, "");
+                            }
+                            else
+                            {
+                                filenameFixed = filename.Text.Replace("*", u.ToString()) + "." + i.format;
+                            }
                             try
                             {
                                 await Helper.DownloadFile(link, i.format, filenameFixed, location);
-                                pictureBox1.Load(location + @"\" + filenameFixed + "." + i.format);
+                                pictureBox1.Load(location + @"\" + filenameFixed);
                             }
                             catch
                             {//do nothing
@@ -269,6 +277,15 @@ namespace DerpiGUI
         private void helpButton_Click(object sender, EventArgs e)
         {
             pictureBox1.Image = Properties.Resources.instructions;
+        }
+
+        private void FilenameCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            filename.Enabled = !FilenameCheckbox.Checked;
+            if(FilenameCheckbox.Checked)
+            {
+                download.Enabled = true;
+            }
         }
     }
     }

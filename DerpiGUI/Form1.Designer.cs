@@ -49,6 +49,7 @@
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.helpButton = new System.Windows.Forms.Button();
             this.infoCheckBox = new System.Windows.Forms.CheckBox();
+            this.FilenameCheckbox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
@@ -263,12 +264,24 @@
             this.infoCheckBox.Text = "Write info.txt?";
             this.infoCheckBox.UseVisualStyleBackColor = true;
             // 
+            // FilenameCheckbox
+            // 
+            this.FilenameCheckbox.AutoSize = true;
+            this.FilenameCheckbox.Location = new System.Drawing.Point(143, 200);
+            this.FilenameCheckbox.Name = "FilenameCheckbox";
+            this.FilenameCheckbox.Size = new System.Drawing.Size(96, 17);
+            this.FilenameCheckbox.TabIndex = 25;
+            this.FilenameCheckbox.Text = "UseViewName";
+            this.FilenameCheckbox.UseVisualStyleBackColor = true;
+            this.FilenameCheckbox.CheckedChanged += new System.EventHandler(this.FilenameCheckbox_CheckedChanged);
+            // 
             // DerpiGUI
             // 
             this.AcceptButton = this.Search;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(948, 497);
+            this.Controls.Add(this.FilenameCheckbox);
             this.Controls.Add(this.infoCheckBox);
             this.Controls.Add(this.helpButton);
             this.Controls.Add(this.linkLabel1);
@@ -320,6 +333,7 @@
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Button helpButton;
         private System.Windows.Forms.CheckBox infoCheckBox;
+        private System.Windows.Forms.CheckBox FilenameCheckbox;
     }
 }
 
